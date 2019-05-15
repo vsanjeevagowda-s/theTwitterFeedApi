@@ -21,11 +21,12 @@ steemFeedsOnSearch = async (track) => {
       sails.sockets.blast('notificationSuccessEvent', event);
     });
     stream.on('error', function (error) {
-      console.log({ error });
+      sails.sockets.blast('notificationErrorEvent', { error: error.message === 'Status Code: 420' ? 'Twitter api limit exceeded. Please try after some time' : error.message });
+    throw new Error(error.message);
     });
     return stream;
   } catch (error) {
-    sails.sockets.blast('notificationErrorEvent', { error: error.message });
+    sails.sockets.blast('notificationErrorEvent', { error: error.message === 'Status Code: 420' ? 'Twitter api limit exceeded. Please try after some time' : error.message });
     throw new Error(error.message);
   }
 };

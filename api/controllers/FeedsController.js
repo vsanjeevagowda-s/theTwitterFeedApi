@@ -3,7 +3,6 @@ let pageNumber = 1;
 let tweetsList = [];
 let stream = '';
 
-debugger
 steemFeedsOnSearch = async (track) => {
   try {
     const client = await sails.helpers.twitterClient.with();

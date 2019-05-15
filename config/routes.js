@@ -22,6 +22,7 @@ module.exports.routes = {
   '/': { view: 'pages/homepage' },
 
   'GET /feeds' : 'FeedsController.feeds',
+  'GET /searchFeed' : 'FeedsController.searchFeed',
 
 
   /***************************************************************************

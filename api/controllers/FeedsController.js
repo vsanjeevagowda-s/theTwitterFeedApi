@@ -31,7 +31,6 @@ steemFeedsOnSearch = async (track) => {
 };
 
 getTweetsFromRemote = async (searchInput) => {
-  debugger
   const client = await sails.helpers.twitterClient.with();
   const params = { q: searchInput, count: 100 };
   resp = await client.get('search/tweets', params);
@@ -63,7 +62,9 @@ feeds = async (req, res) => {
   try {
     resp = await Feeds.findOne({ searchInput });
     if(!resp){
+      resp = {};
       resp.items = await getTweetsFromRemote(searchInput)
+      await Feeds.create({ searchInput, items: resp.items });
     }
     const tweets = (resp && resp.items) ? resp.items.slice((size * (pageNumber - 1)), (size * pageNumber)) : [];
     await steemFeedsOnSearch(searchInput);

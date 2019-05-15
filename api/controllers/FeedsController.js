@@ -30,13 +30,18 @@ steemFeedsOnSearch = async (track) => {
   }
 };
 
+getTweetsFromRemote = async (searchInput) => {
+  debugger
+  const params = { q: searchInput, count: 100 };
+  resp = await client.get('search/tweets', params);
+   return resp.statuses;
+}
+
 searchFeed = async (req, res) => {
   const { searchInput = 'nodejs' } = req.query;
   const client = await sails.helpers.twitterClient.with();
   try {
-    const params = { q: searchInput, count: 100 };
-    resp = await client.get('search/tweets', params);
-    tweetsList = resp.statuses;
+    
     const feed = await Feeds.findOne({ searchInput });
     if (!feed) {
       await Feeds.create({ searchInput, items: tweetsList });
@@ -52,11 +57,15 @@ searchFeed = async (req, res) => {
 }
 
 feeds = async (req, res) => {
+  let resp = {};
   const { page, searchInput = 'nodejs' } = req.query;
   pageNumber = Number(page);
   try {
-    const resp = await Feeds.findOne({ searchInput });
-    const tweets = resp.items.slice((size * (pageNumber - 1)), (size * pageNumber));
+    resp = await Feeds.findOne({ searchInput });
+    if(!resp){
+      resp.items = await getTweetsFromRemote(searchInput)
+    }
+    const tweets = (resp && resp.items) ? resp.items.slice((size * (pageNumber - 1)), (size * pageNumber)) : [];
     await steemFeedsOnSearch(searchInput);
     return res.json(200, { tweets, page: pageNumber, success: true, searchInput });
   } catch (error) {
